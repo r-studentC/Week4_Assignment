@@ -1,15 +1,12 @@
-# Summary
-# Coursera's Getting and Cleaning Data Course - Week 4 Assignment 
-# Use with data provided by accelerometers of a smartphone.
-# Merge, clean, and work on data sets, then create tidy output.
-# See README.md for more details.
+##### Quick Summary: Coursera's Getting and Cleaning Data Course - Week 4 Assignment 
+##### Data provided by accelerometers of a smartphone ->
+##### Merge, clean, and work on these sets, then create tidy output.
+##### See README.md
+
+#### Note: As stated in the assignment, the code only needs to work if the 
+#### files in question are already present -> skipping the retrieval steps
 
 library(dplyr)
-
-### Note: As stated in the assignment, the code only needs to work if the 
-### files in question are already present -> skipping the retrieval steps
-
-
 
 ### 1 - Read data
 
@@ -43,10 +40,8 @@ rm(Xtrain, Ytrain, Subtrain, Xtest, Ytest, Subtest)
 
 ### 3 - Name the columns and create factors for the activities
 colnames(Xall) <- features[,2]
-
 colnames(Yall) <- "activity"
 Yall$activity <- factor(Yall$activity, levels = activities[,1], labels = activities[,2]) 
-
 colnames(Suball) <- "subject"
 
 
@@ -63,8 +58,9 @@ FinalSet <- cbind(Suball, Yall, Xselected)
 ### grouping
 FinalSetMeans <- FinalSet %>% group_by(activity, subject) %>% summarize_all(mean)
 
+
 ### 7 - Write the table to a file
-write.table(FinalSetMeans, file = "./tidy_data_set.txt", row.names = FALSE, col.names = TRUE)
+write.table(FinalSetMeans, file = "./tidy_data_set.txt", row.names = FALSE)
 
 
 
