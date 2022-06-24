@@ -10,53 +10,50 @@ library(dplyr)
 
 ### 1 - Read data
 
-## Reading in training values (Xtrain), activity code (Ytrain) and 
-## subjects (Subtrain)
-Xtrain <- read.table("./UCI HAR Dataset/train/X_train.txt")
-Ytrain <- read.table("./UCI HAR Dataset/train/y_train.txt")
-Subtrain <- read.table("./UCI HAR Dataset/train/subject_train.txt")
+## Reading in training values (trainValues), activity code (trainActivities) and 
+## subjects (trainSubjs)
+trainValues <- read.table("./UCI HAR Dataset/train/X_train.txt")
+trainActivities <- read.table("./UCI HAR Dataset/train/y_train.txt")
+trainSubjs <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 
-## Reading in test values (Xtest), activity code(Ytest) and 
-## subjects (Subtest)
-Xtest <- read.table("./UCI HAR Dataset/test/X_test.txt")
-Ytest <- read.table("./UCI HAR Dataset/test/y_test.txt")
-Subtest <- read.table("./UCI HAR Dataset/test/subject_test.txt")
+## Reading in test values (testValues), activity code(testActivities) and 
+## subjects (testSubjs)
+testValues <- read.table("./UCI HAR Dataset/test/X_test.txt")
+testActivities <- read.table("./UCI HAR Dataset/test/y_test.txt")
+testSubjs <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 
 ## Reading in activity code table (activities) and features (features)
 activities <- read.table("./UCI HAR Dataset/activity_labels.txt")
 features <- read.table("./UCI HAR Dataset/features.txt")
 
 
-### 2 - Merging (first pass) and cleanup
+### 2 - Merging (first pass)
 
 ## Create three new tables that each combine test and training data
-Xall <- rbind(Xtrain, Xtest)
-Yall <- rbind(Ytrain, Ytest) 
-Suball <- rbind(Subtrain, Subtest) 
-
-## remove the no longer used originals to save some memory
-rm(Xtrain, Ytrain, Subtrain, Xtest, Ytest, Subtest)
+valuesAll <- rbind(trainValues, testValues)
+activitiesAll <- rbind(trainActivities, testActivities) 
+subjsAll <- rbind(trainSubjs, testSubjs) 
 
 
 ### 3 - Name the columns and create factors for the activities
-colnames(Xall) <- features[,2]
-colnames(Yall) <- "activity"
-Yall$activity <- factor(Yall$activity, levels = activities[,1], labels = activities[,2]) 
-colnames(Suball) <- "subject"
+colnames(valuesAll) <- features[,2]
+colnames(activitiesAll) <- "activity"
+activitiesAll$activity <- factor(activitiesAll$activity, levels = activities[,1], labels = activities[,2]) 
+colnames(subjsAll) <- "subject"
 
 
 ### 4 - Select the mean and std deviation columns only
-Xselected <- select(Xall, contains("mean()") | contains("std()"))
+valuesSelected <- select(valuesAll, contains("mean()") | contains("std()"))
 
 
 ### 5 - Merge and create final set in the order "subject", "activity" "values"
-FinalSet <- cbind(Suball, Yall, Xselected)
+FinalSet <- cbind(subjsAll, activitiesAll, valuesSelected)
 
 
 ### 6 - Pipe the final set first through a grouping command and 
 ### then have summarize_all apply the mean() function on all values based on the
 ### grouping
-FinalSetMeans <- FinalSet %>% group_by(activity, subject) %>% summarize_all(mean)
+FinalSetMeans <- FinalSet %>% group_by(activity, subject) %>% summarise_all(mean)
 
 
 ### 7 - Write the table to a file
